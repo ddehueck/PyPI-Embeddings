@@ -1,2 +1,2 @@
-# Joint-Language-and-Graph-Embeddings
-Repository for code and paper around the idea of combining language and graph embeddings
+# PyPI Embeddings
+Repository for code and paper around the idea of combining language and graph embeddings to embed python packages via PyPI
