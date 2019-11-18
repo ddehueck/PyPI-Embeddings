@@ -5,7 +5,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 import ujson
 import sys
 import os
-from github_utils import GitHubUtils
+from data_retrieval.github_utils import GitHubUtils
 
 
 class RetrieveGitHubData:

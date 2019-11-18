@@ -2,7 +2,7 @@ import ujson
 import sys
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from readme_file_utils import RetrieveProjectReadmeTask
+from data_retrieval.readme_file_utils import RetrieveProjectReadmeTask
 from urllib.parse import urlparse
 
 
