@@ -25,12 +25,12 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Learning One Cross-Domain Graph Representation with PyPI Data}
+\icmltitlerunning{CrossWalk: Learning Cross-Domain Subgraph Representations}
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{Learning One Cross-Domain Graph Representation with PyPI Data}
+\icmltitle{CrossWalk: Learning Cross-Domain Subgraph Representations}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -77,28 +77,48 @@
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 \begin{abstract}
-To understand a new dataset a practitioner may turn to sums, buckets, and averages to quantity different properties in the data. Traditionally, modern machine learning does not help in this situation - only in matters when one wants to predict. In this case study we present a careful analysis of a data space so large and specialized that traditional statics cannot properly characterize it's properties. We apply both traditional and more recent, advanced techniques to develop an embedding space for python packages hosted on PyPi. To evaluate these results we develop a task consisting of finding “package neighbors” determined by python developers. With this evaluation task, the multiple methods are compared and we recommend (make recommendation here), along with the 
+Graphs are a wonderful way to interpret data as they capture many complex relationships. However this data may be spread across domains, e.g. a python package can be characterized by a language graph, a python code graph, and a dependency graph. This same problem emerges across a wide variety of data-hungry industries where no single domain of data is sufficient to represent the entity being sought after i.e. a python package, a user in social media, or a web page. In this paper we help address this problem with a two-fold contribution: (1) We introduce the PyPI Graph Dataset that includes three graph data domains. (2) We benchmark this dataset with a novel method that can cross domains that we coin CrossWalk.
 \end{abstract}
 
 \section{Introduction}
-The Python Package Index (PyPI) is home to over one-hundred and twenty-thousand python packages (Bommarito et al. 2019). Finding similar packages in terms of use-cases, features, and performance can be very difficult without specific domain knowledge of a task and the Python ecosystem. Motivated by this we build multiple embedding spaces of python packages based on the documentation and/or graphical structure of direct dependencies.
+The Python Package Index (PyPI) is home to over one-hundred and twenty-thousand python packages (Bommarito et al. 2019). Finding similar packages in terms of use-cases, features, and performance can be very difficult without specific domain knowledge of a task and the python ecosystem. 
 
-By using the documentation of python packages this problem is framed as a natural language processing task. We take advantage of this and apply traditional NLP techniques as well as more advanced recent techniques like doc2vec (Le et al. 2014) and lda2vec (Moody 2016). 
+One of deep learning's most fundamental advances is the ability to learn meaningful representations from raw data. The PyPI dataset presented in this is unique due to the multi-domain nature of its data which is all unified under the idea of a python package. That is to say, every python package may have a textual description, a place in a large dependency graph, and the python code itself. Each of these domains have been researched independently. Document representations have been a long researched area within NLP, graph representations are a hot area of research, code representations are a newer but largely unexplored area of representation learning. This dataset not only provides a new context to further explore these domains, but allows for researchers to explore the interaction and generalization of methods that may apply across all of these domains. 
 
-However building an embedding space for a data such as python packages introduces a problem: How does one evaluate such a space when there are no experts that can evaluate a potential solution due to the extreme nichety of the space. E.g. With word embeddings any proficient speaker of the language can reasonably evaluate if the nearest-neighbors of an embedding are relevant. With an extremely niche space like python packages expert python developers may be able to evaluate a subset of the space (e.g. python web developers could indicate which packages are similar to a package like flask). To mitigate this problem we plan to sample these subsets of Python experts to get list of potential package neighbors that would be able to indicate the correctness of the resulting embedding space.
+One can imagine that a sentence can be thought of a random walk through a language graph thus, the strong performance of word2vec \cite{word2vec} and other neural probabilistic language models \cite{bengio2003neural} can be applied in an effective manner on arbitrary graphs to learn node representations \cite{deepwalk}. We argue that this analogy can and should be pushed further in the pursuit of building general cross-domain methods.
 
+\section{Related Work}
+
+To the best of our knowledge there is only one other paper that directly addresses the issue of cross-domain representations in the space of graph neural networks (GNNs). \cite{ouyang2019learning} introduces Deep Multi-Graph Embedding (DMGE) which relies on a multiple-gradient descent optimizer to balance learning across domains. 
+
+Not only do we learn cross-domain representations we also learn a representation for subgraph. Sub2Vec as detailed in \cite{adhikari2017distributed} builds on the formalization in \cite{deepwalk} which itself extends the skip-gram model \cite{word2vec} to arbitrary graphs.
 
 \section{The Dataset}
 
-\subsection{Data Collection}
+\begin{table}[t]
+\caption{Summary of PyPI Graph Dataset}
+\label{sample-table}
+\vskip 0.15in
+\begin{center}
+\begin{small}
+\begin{sc}
+\begin{tabular}{lcccr}
+\toprule
+Domain & \# Nodes & \# Edges\\
+\midrule
+Language     & 166,987 & & \\
+Python Code  & & & \\
+Dependencies & 95,951 & 1,509,378 & \\
+Total        & 199,234 & & \\
+\bottomrule
+\end{tabular}
+\end{sc}
+\end{small}
+\end{center}
+\vskip -0.15in
+\end{table}
 
-\section{Learning Python Package Representations}
-
-One of Deep Learning's most relevant advances is the ability to learn meaningful representations from raw data. The PyPI dataset presented in this is unique due to the multi-domain nature of its data all unified under the idea of a python package. That is to say, every python package may have a textual description, a place in a large dependency graph, and the python code itself. Each of these domains have been researched independently. Document representations have been a long researched area within NLP, graph representations are becoming a hotter area of research, code representations are a newer but largely unexplored area of representation learning. This dataset not only provides a new context to further explore these domains, but allows for researchers to explore the interaction and generalization of methods that may apply across all of these domains. 
-
-One can imagine that sentence can be thought of a random walk through a language graph thus, the strong performance of word2vec \cite{word2vec} and other neural probabilistic language models \cite{bengio2003neural} can be applied in an effective manner on arbitrary graphs to learn node representations \cite{deepwalk}. We argue that this analogy can and should be pushed further in the pursuit of building general cross-domain methods. 
-
-Within the PyPI dataset we interpret each package as a graph consisting of a subgraph for each domain. As shown in [ADD A FIGURE AND REFERENCE HERE] a package graph consists of a language graph, a dependency graph, and a code graph. The following sections detail how we construct each subgraph and the current SOTA methods in representation learning for that domain.
+Within the PyPI dataset we interpret each package as a graph consisting of a subgraph for each domain. As shown in [ADD A FIGURE AND REFERENCE HERE] a package graph consists of a language graph, a dependency graph, and a python code graph. The following sections detail how we interpret and construct each subgraph.
 
 \subsection{The Language Graph}
 
@@ -112,12 +132,15 @@ The language graph consists of either the package's GitHub README file or its Py
 
 \subsection{The Code Graph}
 
-\subsection{The Cross Domain Graph}
+\subsection{Data Collection}
+
+
+\section{CrossWalk}
 Our maximum likelihood w.r.t the parameters of our model across all domains present becomes:
 \begin{equation}
-\arg\max_{\theta} \prod_{i}^{D}\prod_{t}^{V}P(v^{(i)}_{t} | v^{(i)}_{-w:w}, \mathbf{d}; \theta)
+\arg\max_{\theta} \prod_{i}^{D}\prod_{t}^{V^{(i)}}P(v^{(i)}_{t} | v^{(i)}_{-w:w}, \mathbf{d}; \theta)
 \end{equation}
-Where $D$ is the set of all domains, $v^{(i)}_{t}$ is the $t$th vertex in the $i$th domain, and $mathbf{d}$ is the document vector.
+Where $D$ is the set of all domains, $v^{(i)}_{t}$ is the $t$th vertex in the $i$th domain, and $\mathbf{d}$ is the document vector.
 
 \section{Representation Evaluation}
 
